@@ -1,18 +1,17 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const storeItemSchema = new mongoose.Schema({
   title: { type: String, required: true },
   type: { 
     type: String, 
-    enum: ['AVATAR_FRAME', 'ENTRANCE_EFFECT', 'VIP_BADGE'], 
-    required: true 
+    required: true, 
+    enum: ['AVATAR_FRAME', 'ENTRANCE_EFFECT', 'VIP_BADGE'] 
   },
   previewUrl: { type: String, required: true },
-  animationUrl: { type: String, default: '' },
   priceInCoins: { type: Number, required: true },
-  validityDays: { type: Number, default: 30 },
-  isActive: { type: Boolean, default: true }
+  validityDays: { type: Number, default: 30 }
 }, { timestamps: true });
 
-module.exports = mongoose.model('StoreItem', storeItemSchema);
+const StoreItem = mongoose.model('StoreItem', storeItemSchema);
+export default StoreItem;
 

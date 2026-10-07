@@ -1,8 +1,7 @@
-const mongoose = require('mongoose');
-const StoreItem = require('./models/StoreItem');
+import mongoose from 'mongoose';
+import StoreItem from './models/StoreItem.js';
 
-// MongoDB Connection Link
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/deluxelive';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://Aadami:11sa22ww@cluster0.423rfjb.mongodb.net/deluxelive?appName=Cluster0';
 
 const sampleItems = [
   {
@@ -31,7 +30,7 @@ const sampleItems = [
 const seedDB = async () => {
   try {
     await mongoose.connect(MONGO_URI);
-    await StoreItem.deleteMany({}); // Clears existing items
+    await StoreItem.deleteMany({});
     await StoreItem.insertMany(sampleItems);
     console.log('✅ Store Items Added Successfully!');
     mongoose.connection.close();
@@ -41,3 +40,4 @@ const seedDB = async () => {
 };
 
 seedDB();
+
