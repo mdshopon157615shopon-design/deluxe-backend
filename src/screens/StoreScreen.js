@@ -20,7 +20,7 @@ const StoreScreen = ({ userId, userCoins, refreshUser }) => {
 
   const fetchStoreItems = async () => {
     try {
-      const response = await fetch('YOUR_BACKEND_URL/api/store/items');
+      const response = await fetch('https://deluxe-backend-1.onrender.com/api/store/items');
       const data = await response.json();
       if (data.success) {
         setItems(data.items);
@@ -38,7 +38,7 @@ const StoreScreen = ({ userId, userCoins, refreshUser }) => {
     }
 
     try {
-      const response = await fetch('YOUR_BACKEND_URL/api/store/buy', {
+      const response = await fetch('https://deluxe-backend-1.onrender.com/api/store/buy', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, itemId }),
