@@ -1,4 +1,6 @@
 import express from 'express';
+import voiceRoutes from './routes/voiceRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import storeRoutes from './routes/storeRoutes.js';
@@ -10,6 +12,8 @@ app.use(cors());
 
 // Store API middleware
 app.use('/api/store', storeRoutes);
+app.use('/api/voice', voiceRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // MongoDB Connection
 const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://Aadami:11sa22ww@cluster0.423rfjb.mongodb.net/deluxelive?appName=Cluster0';
