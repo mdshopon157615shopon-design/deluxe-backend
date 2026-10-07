@@ -1,35 +1,111 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import mongoose from 'mongoose';
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-import storeRoutes from './routes/storeRoutes.js';
-import voiceRoutes from './routes/voiceRoutes.js';
-import paymentRoutes from './routes/paymentRoutes.js';
-
-dotenv.config();
+const User = require('./models/User');
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/deluxelive';
+const MONGO_URI = process.env.MONGO_URI || 'YOUR_MONGODB_ATLAS_CONNECTION_STRING';
+const JWT_SECRET = process.env.JWT_SECRET || 'deluxe_live_secret_key_123';
+
 mongoose.connect(MONGO_URI)
-  .then(() => console.log('MongoDB Connected Successfully'))
-  .catch(err => console.error('MongoDB Connection Error:', err));
+  .then(() => console.log('MongoDB Atlas Connected Successfully!'))
+  .catch((err) => console.error('MongoDB Connection Error:', err));
 
-// Routes
 app.get('/', (req, res) => {
-  res.send('Deluxe Live Backend is Running!');
+  res.send('Deluxe Live Backend is Running Successfully!');
 });
 
-app.use('/api/store', storeRoutes);
-app.use('/api/voice', voiceRoutes);
-app.use('/api/payment', paymentRoutes);
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'All fields are required.' });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email is already registered.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+    });
+
+    await newUser.save();
+
+    const token = jwt.sign({ userId: newUser._id }, JWT_SECRET, { expiresIn: '7d' });
+
+    res.status(201).json({
+      message: 'Registration successful!',
+      token,
+      user: {
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        coins: newUser.coins
+      }
+    });
+  } catch (error) {
+    console.error('Register Error:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
 });
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required.' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid email or password.' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: 'Invalid email or password.' });
+    }
+
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' });
+
+    res.json({
+      message: 'Login successful!',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        coins: user.coins
+      }
+    });
+  } catch (error) {
+    console.error('Login Error:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
+app.get('/api/store/items', (req, res) => {
+  res.json([
+    { _id: '1', name: 'VIP Status', price: 100 },
+    { _id: '2', name: 'Deluxe Frame', price: 250 },
+    { _id: '3', name: 'Super Car Entrance', price: 500 }
+  ]);
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
