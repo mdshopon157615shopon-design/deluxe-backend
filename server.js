@@ -1,3 +1,8 @@
+// Store route import
+const storeRoutes = require('./routes/storeRoutes');
+
+// Store API middleware
+app.use('/api/store', storeRoutes);
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
