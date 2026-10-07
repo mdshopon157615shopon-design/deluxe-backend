@@ -11,12 +11,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const MONGO_URI = process.env.MONGO_URI || 'YOUR_MONGODB_ATLAS_CONNECTION_STRING';
+const MONGO_URI = process.env.MONGO_URI || 'YOUR_ACTUAL_MONGODB_URI';
 const JWT_SECRET = process.env.JWT_SECRET || 'deluxe_live_secret_key_123';
 
-mongoose.connect(MONGO_URI)
-  .then(() => console.log('MongoDB Atlas Connected Successfully!'))
-  .catch((err) => console.error('MongoDB Connection Error:', err));
+if (MONGO_URI && !MONGO_URI.includes('YOUR_ACTUAL_MONGODB_URI')) {
+  mongoose.connect(MONGO_URI)
+    .then(() => console.log('MongoDB Atlas Connected Successfully!'))
+    .catch((err) => console.error('MongoDB Connection Error:', err));
+} else {
+  console.log('MongoDB URI is missing');
+}
 
 app.get('/', (req, res) => {
   res.send('Deluxe Live Backend is Running Successfully!');
