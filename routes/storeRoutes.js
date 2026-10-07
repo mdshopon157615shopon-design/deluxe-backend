@@ -1,11 +1,13 @@
-const express = require('express');
+import express from 'express';
+import storeController from '../controllers/storeController.js';
+
 const router = express.Router();
-const storeController = require('../controllers/storeController');
 
 // Get all store items
-router.get('/items', storeController.getStoreItems);
+router.get('/items', storeController.getItems);
 
 // Buy an item
 router.post('/buy', storeController.buyItem);
 
-module.exports = router;
+export default router;
+
